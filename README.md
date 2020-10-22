@@ -27,8 +27,8 @@ The app will start running at <http://localhost:8080>
 
 | Method | Url | Decription | Sample Valid Request Body | 
 | ------ | --- | ---------- | --------------------------- |
-| POST   | /myreads/auth/signup | Sign up | [JSON](#signup) |
-| POST   | /myreads/auth/signin | Log in | [JSON](#signin) |
+| POST   | /api/auth/signup | Sign up | [JSON](#signup) |
+| POST   | /api/auth/signin | Log in | [JSON](#signin) |
 
 
 Test them using postman or any other rest client.
