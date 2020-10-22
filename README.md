@@ -35,7 +35,7 @@ Test them using postman or any other rest client.
 
 ## Sample Valid JSON Request Bodys
 
-##### <a id="signup">Sign Up -> /myreads/auth/signup</a>
+##### <a id="signup">Sign Up -> /api/auth/signup</a>
 ```json
 {
 	"firstName": "Jordan",
@@ -50,7 +50,7 @@ Test them using postman or any other rest client.
 }
 ```
 
-##### <a id="signin">Log In -> /myreads/auth/signin</a>
+##### <a id="signin">Log In -> /api/auth/signin</a>
 ```json
 {
 	"usernameOrEmail": "hendo",
