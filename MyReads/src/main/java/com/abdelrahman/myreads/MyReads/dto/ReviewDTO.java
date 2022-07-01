@@ -1,5 +1,6 @@
 package com.abdelrahman.myreads.MyReads.dto;
 
+import com.abdelrahman.myreads.MyReads.model.Book;
 import com.abdelrahman.myreads.MyReads.model.Star;
 import com.abdelrahman.myreads.MyReads.payload.UserProfile;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -18,9 +19,10 @@ public class ReviewDTO {
     Long id;
     String body;
     Long parentId;
-    Star starValue;
+    Double rating;
+    Book book;
     String fullName;
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
-    Link selfLink;
+    Link userLink;
 }

@@ -62,17 +62,19 @@ public class ReviewServiceImpl implements ReviewService {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new ResourceNotFoundException(BOOK, ID, bookId));
 
-
-        Review review =  mapper.map(reviewRequest, Review.class);
+        Review review =  new Review();
         review.setUser(user);
-        review.setStarValue(Star.from(reviewRequest.getStarValue()));
+        review.setBook(book);
+        review.setParentId(reviewRequest.getParentId());
+        review.setBody(reviewRequest.getBody());
+        review.setRaiting(reviewRequest.getRating());
         review.setCreatedAt(LocalDateTime.now());
         reviewRepository.save(review);
+
         ReviewDTO reviewDTO = mapper.map(review, ReviewDTO.class);
         reviewDTO.setFullName(user.getFirstName() + " " + user.getLastName());
-        Link selfLink = linkTo(methodOn(UserController.class)
-                .getUserProfile(user.getId())).withSelfRel();
-        reviewDTO.setSelfLink(selfLink);
+        Link userLink = linkTo(methodOn(UserController.class).getUserProfile(user.getId())).withSelfRel();
+        reviewDTO.setUserLink(userLink);
         return reviewDTO;
     }
 

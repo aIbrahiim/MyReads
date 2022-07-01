@@ -29,8 +29,7 @@ public class Review {
     @Nullable
     private Long parentId;
 
-    @Enumerated(EnumType.STRING)
-    private Star starValue;
+    private Double raiting;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -44,10 +43,10 @@ public class Review {
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 
-    public Review(String body, @Nullable Long parentId, Star rating, User user, Book book, LocalDateTime createdAt) {
+    public Review(String body, @Nullable Long parentId, Double rating, User user, Book book, LocalDateTime createdAt) {
         this.body = body;
         this.parentId = parentId;
-        this.starValue = rating;
+        this.raiting = rating;
         this.user = user;
         this.book = book;
         this.createdAt = createdAt;
