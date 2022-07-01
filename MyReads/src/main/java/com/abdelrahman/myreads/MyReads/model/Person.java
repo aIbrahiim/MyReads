@@ -31,7 +31,7 @@ public abstract class Person {
     @Enumerated(EnumType.STRING)
     protected Gender gender;
 
-    @Size(min = 10, max = 200, message = "Bio must be between 10 and 200 characters")
+    @Size(min = 0, max = 200)
     protected String bio;
 
     protected String city;

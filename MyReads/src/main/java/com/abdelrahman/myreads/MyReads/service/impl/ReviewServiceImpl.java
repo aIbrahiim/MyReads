@@ -6,6 +6,7 @@ import com.abdelrahman.myreads.MyReads.dto.ThreadDTO;
 import com.abdelrahman.myreads.MyReads.exception.ResourceNotFoundException;
 import com.abdelrahman.myreads.MyReads.model.Book;
 import com.abdelrahman.myreads.MyReads.model.Review;
+import com.abdelrahman.myreads.MyReads.model.Star;
 import com.abdelrahman.myreads.MyReads.model.User;
 import com.abdelrahman.myreads.MyReads.payload.PagedResponse;
 import com.abdelrahman.myreads.MyReads.payload.ReviewRequest;
@@ -14,6 +15,7 @@ import com.abdelrahman.myreads.MyReads.repository.ReviewRepository;
 import com.abdelrahman.myreads.MyReads.repository.UserRepository;
 import com.abdelrahman.myreads.MyReads.security.UserPrincipal;
 import com.abdelrahman.myreads.MyReads.service.ReviewService;
+import com.abdelrahman.myreads.MyReads.util.UtilsMethods;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -59,13 +61,13 @@ public class ReviewServiceImpl implements ReviewService {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new ResourceNotFoundException(BOOK, ID, bookId));
 
-        System.out.println(reviewRequest.getParentId());
-        Review review = new Review();
-        review = reviewRepository.save(review);
-
+        Star star = UtilsMethods.getStarValue(reviewRequest.getStarValue());
+        System.out.println(user.toString());
+        Review review =  mapper.map(reviewRequest, Review.class);
+        review.setCreatedAt(LocalDateTime.now());
+        reviewRepository.save(review);
         ReviewDTO reviewDTO = mapper.map(review, ReviewDTO.class);
         return reviewDTO;
-
     }
 
     BiPredicate<ReviewDTO, ReviewDTO> checkParent = (p1, p2) ->{

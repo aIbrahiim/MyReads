@@ -17,4 +17,6 @@ public class ReviewRequest {
     @NotBlank
     @Size(min = 5, message = "Review body must be minimum 5 characters")
     String body;
+
+    String starValue;
 }

@@ -120,34 +120,22 @@ public class AuthServiceImpl implements AuthService {
         Period period = Period.between(birthDay, LocalDate.now());
 
         User user = new User(firstName, lastName, username, email, password, bio, website, joinedAt, genderValue, period.getYears(), null, null);
-
-        Set<Role> roles = new HashSet<>();
+        user.setEnabled(true);
+    /*    Set<Role> roles = new HashSet<>();
         Role role = roleRepository.findByName(RoleName.ROLE_USER)
                .orElseThrow(() -> new AppException(new ApiError(HttpStatus.BAD_REQUEST, "User Role is not set")));
         roles.add(role);
         user.setRoles(roles);
 
 
+     */
+
+
         User result = userRepository.save(user);
-/*
-        shelfService.createPredefinedShelves(result);
 
-        ConfirmationToken confirmationToken = new ConfirmationToken(user);
+        //shelfService.createPredefinedShelves(result);
 
-        confirmationTokenRepository.save(confirmationToken);
-
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo(user.getEmail());
-        mailMessage.setSubject("Complete Registration!");
-        mailMessage.setFrom("MyShelf@gmail.com");
-        mailMessage.setText("To confirm your account, please click here : "
-                +"http://localhost:8080/api/auth/confirm-account?token="+confirmationToken.getToken());
-
-        emailSenderService.sendEmail(mailMessage);
-
- */
         UserProfile userProfile = mapper.map(user, UserProfile.class);
-
 
         return userProfile;
     }
@@ -207,6 +195,23 @@ public class AuthServiceImpl implements AuthService {
         emailSenderService.sendEmail(mailMessage);
 
         return new ApiResponse(Boolean.TRUE, "Check your mail inbox for the reset code");
+    }
+
+    @Override
+    public void sendConfirmationLink(User user) {
+        ConfirmationToken confirmationToken = new ConfirmationToken(user);
+
+        confirmationTokenRepository.save(confirmationToken);
+
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setTo(user.getEmail());
+        mailMessage.setSubject("Complete Registration!");
+        mailMessage.setFrom("MyShelf@gmail.com");
+        mailMessage.setText("To confirm your account, please click here : "
+                +"http://localhost:8080/api/auth/confirm-account?token="+confirmationToken.getToken());
+
+        emailSenderService.sendEmail(mailMessage);
+
     }
 
     /*

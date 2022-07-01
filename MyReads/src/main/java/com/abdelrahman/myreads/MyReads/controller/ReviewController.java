@@ -18,21 +18,21 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("book/{bookId}/reviews")
+@RequestMapping("books/{bookId}/reviews")
 public class ReviewController {
 
     @Autowired
     ReviewService reviewService;
 
     @PostMapping
-    @PreAuthorize("hasRole('USER')")
+    //@PreAuthorize("hasRole('USER')")
     public ResponseEntity<ReviewDTO> addReview(@RequestBody ReviewRequest reviewRequest, @PathVariable(name = "bookId") Long bookId, @CurrentUser UserPrincipal currentUser){
         ReviewDTO reviewDTO = reviewService.addReview(reviewRequest , bookId, currentUser);
         return new ResponseEntity<>(reviewDTO, HttpStatus.CREATED);
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('USER')")
+   // @PreAuthorize("hasRole('USER')")
     public ResponseEntity<PagedResponse<ThreadDTO>> getReviewsOfBook(@PathVariable(name = "bookId") Long bookId,
                                                                      @RequestParam(name = "page", required = false, defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) Integer page,
                                                                      @RequestParam(name = "size", required = false, defaultValue = AppConstants.DEFAULT_PAGE_SIZE) Integer size){

@@ -1,5 +1,7 @@
 package com.abdelrahman.myreads.MyReads.model;
 
+import java.util.stream.Stream;
+
 public enum Star {
 
     ONE("one"),
@@ -10,15 +12,16 @@ public enum Star {
 
 
 
-    private final String star;
+    private String value;
 
-
-    Star(String star) {
-        this.star = star;
+    Star(String value) {
+        this.value = value;
     }
 
-    public String getStar() {
-        return star;
+    public String getValue() {
+        return value;
     }
 
-}
+ }
+
+
