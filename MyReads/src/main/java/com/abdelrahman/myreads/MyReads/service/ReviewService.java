@@ -14,5 +14,5 @@ public interface ReviewService {
 
     public ReviewDTO addReview(ReviewRequest reviewRequest, Long bookId, UserPrincipal currentUser);
 
-    public PagedResponse<ThreadDTO> getReviewsOfBook(Long bookId, int page, int size);
+    public PagedResponse<Review> getReviewsOfBook(Long bookId, int page, int size);
 }

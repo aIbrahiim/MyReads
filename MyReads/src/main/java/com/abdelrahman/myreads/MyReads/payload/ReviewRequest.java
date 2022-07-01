@@ -13,10 +13,8 @@ import javax.validation.constraints.Size;
 public class ReviewRequest {
 
     Long parentId;
-
     @NotBlank
     @Size(min = 5, message = "Review body must be minimum 5 characters")
     String body;
-
     String starValue;
 }

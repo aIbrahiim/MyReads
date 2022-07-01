@@ -33,10 +33,10 @@ public class ReviewController {
 
     @GetMapping
    // @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<PagedResponse<ThreadDTO>> getReviewsOfBook(@PathVariable(name = "bookId") Long bookId,
+    public ResponseEntity<PagedResponse<Review>> getReviewsOfBook(@PathVariable(name = "bookId") Long bookId,
                                                                      @RequestParam(name = "page", required = false, defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) Integer page,
                                                                      @RequestParam(name = "size", required = false, defaultValue = AppConstants.DEFAULT_PAGE_SIZE) Integer size){
-        PagedResponse<ThreadDTO> reviews = reviewService.getReviewsOfBook(bookId, page, size);
+        PagedResponse<Review> reviews = reviewService.getReviewsOfBook(bookId, page, size);
         return new ResponseEntity<>(reviews, HttpStatus.OK);
     }
 }

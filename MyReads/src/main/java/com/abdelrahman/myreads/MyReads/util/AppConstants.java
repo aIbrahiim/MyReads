@@ -7,7 +7,7 @@ public class AppConstants {
 
     public static final int MAX_PAGE_SIZE = 30;
 
-    public static final String CREATED_AT = "created_at";
+    public static final String CREATED_AT = "createdAt";
 
     public static final String ID = "id";
 

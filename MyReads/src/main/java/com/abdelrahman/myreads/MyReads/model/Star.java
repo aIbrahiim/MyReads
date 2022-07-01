@@ -1,6 +1,5 @@
 package com.abdelrahman.myreads.MyReads.model;
 
-import java.util.stream.Stream;
 
 public enum Star {
 
@@ -18,10 +17,16 @@ public enum Star {
         this.value = value;
     }
 
-    public String getValue() {
-        return value;
-    }
+    public static Star from(String value) {
+        for(Star item : values()) {
+            if(item.value.equals(value)) {
+                return item;
+            }
+        }
+        return null;
 
- }
+    }
+}
+
 
 

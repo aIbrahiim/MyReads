@@ -31,8 +31,8 @@ public class BookServiceImpl implements BookService {
 
         Optional<Book> book = bookRepository.findById(id);
         BookDTO bookDTO = mapper.map(book.get(), BookDTO.class);
-        PagedResponse<ThreadDTO> reviews = reviewService.getReviewsOfBook(book.get().getId(), 0, 10);
-        bookDTO.setReviews(reviews);
+        //PagedResponse<ThreadDTO> reviews = reviewService.getReviewsOfBook(book.get().getId(), 0, 10);
+        //bookDTO.setReviews(reviews);
         System.out.println(bookDTO.toString());
         return bookDTO;
 

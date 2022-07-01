@@ -62,14 +62,17 @@ public class ReviewServiceImpl implements ReviewService {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new ResourceNotFoundException(BOOK, ID, bookId));
 
-        Star star = UtilsMethods.getStarValue(reviewRequest.getStarValue());
+
         Review review =  mapper.map(reviewRequest, Review.class);
         review.setUser(user);
+        review.setStarValue(Star.from(reviewRequest.getStarValue()));
         review.setCreatedAt(LocalDateTime.now());
         reviewRepository.save(review);
         ReviewDTO reviewDTO = mapper.map(review, ReviewDTO.class);
-        System.out.println(user.toString());
-        reviewDTO.setUserFullName(user.getFirstName() + " " + user.getLastName());
+        reviewDTO.setFullName(user.getFirstName() + " " + user.getLastName());
+        Link selfLink = linkTo(methodOn(UserController.class)
+                .getUserProfile(user.getId())).withSelfRel();
+        reviewDTO.setSelfLink(selfLink);
         return reviewDTO;
     }
 
@@ -78,18 +81,18 @@ public class ReviewServiceImpl implements ReviewService {
     };
 
     @Override
-    public PagedResponse<ThreadDTO> getReviewsOfBook(Long bookId, int page, int size) {
+    public PagedResponse<Review> getReviewsOfBook(Long bookId, int page, int size) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, CREATED_AT);
-        Page<Review> reviews = null;
-        List<Review> content = reviews.getNumberOfElements() == 0 ? Collections.emptyList() : reviews.getContent();
-        List<ReviewDTO> contentDTO = new ArrayList<>();
-
-        for(int i=0; i<content.size(); ++i){
+        Page<Review> reviews = reviewRepository.findByBookId(bookId, pageable);
+        //List<Review> content = reviews.getNumberOfElements() == 0 ? Collections.emptyList() : reviews.getContent();
+        return new PagedResponse<>(reviews.getContent(), reviews.getNumber(), reviews.getSize(),
+        reviews.getTotalElements(), reviews.getTotalPages(), reviews.isLast());
+      /*  for(int i=0; i<content.size(); ++i){
             ReviewDTO reviewDTO = mapper.map(content.get(i), ReviewDTO.class);
             Link selfLink = linkTo(methodOn(UserController.class)
                     .getUserProfile(content.get(i).getUser().getId())).withSelfRel();
-            //reviewDTO.getUserFullName().add(selfLink);
+            reviewDTO.setSelfLink(selfLink);
             contentDTO.add(reviewDTO);
         }
 
@@ -104,7 +107,9 @@ public class ReviewServiceImpl implements ReviewService {
                     threadReview.add(threadDTO);
                 });
 
+
+
         return new PagedResponse<>(threadReview, reviews.getNumber(), reviews.getSize(), reviews.getSize(),
-                reviews.getTotalPages(), reviews.isLast());
+                reviews.getTotalPages(), reviews.isLast());  */
     }
 }
