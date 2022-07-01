@@ -3,6 +3,7 @@ package com.abdelrahman.myreads.MyReads.service.impl;
 import com.abdelrahman.myreads.MyReads.controller.UserController;
 import com.abdelrahman.myreads.MyReads.dto.ReviewDTO;
 import com.abdelrahman.myreads.MyReads.dto.ThreadDTO;
+import com.abdelrahman.myreads.MyReads.dto.UserReviewDto;
 import com.abdelrahman.myreads.MyReads.exception.ResourceNotFoundException;
 import com.abdelrahman.myreads.MyReads.model.Book;
 import com.abdelrahman.myreads.MyReads.model.Review;
@@ -62,11 +63,13 @@ public class ReviewServiceImpl implements ReviewService {
                 .orElseThrow(() -> new ResourceNotFoundException(BOOK, ID, bookId));
 
         Star star = UtilsMethods.getStarValue(reviewRequest.getStarValue());
-        System.out.println(user.toString());
         Review review =  mapper.map(reviewRequest, Review.class);
+        review.setUser(user);
         review.setCreatedAt(LocalDateTime.now());
         reviewRepository.save(review);
         ReviewDTO reviewDTO = mapper.map(review, ReviewDTO.class);
+        System.out.println(user.toString());
+        reviewDTO.setUserFullName(user.getFirstName() + " " + user.getLastName());
         return reviewDTO;
     }
 
@@ -86,7 +89,7 @@ public class ReviewServiceImpl implements ReviewService {
             ReviewDTO reviewDTO = mapper.map(content.get(i), ReviewDTO.class);
             Link selfLink = linkTo(methodOn(UserController.class)
                     .getUserProfile(content.get(i).getUser().getId())).withSelfRel();
-            reviewDTO.getUser().add(selfLink);
+            //reviewDTO.getUserFullName().add(selfLink);
             contentDTO.add(reviewDTO);
         }
 

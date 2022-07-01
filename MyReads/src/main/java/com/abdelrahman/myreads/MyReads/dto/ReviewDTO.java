@@ -15,7 +15,7 @@ public class ReviewDTO {
     Long id;
     String body;
     Long parentId;
-    UserReviewDto user;
+    String userFullName;
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 }

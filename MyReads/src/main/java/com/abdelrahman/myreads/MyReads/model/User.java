@@ -24,12 +24,33 @@ import java.util.Set;
 @Table(name = "users")
 @NoArgsConstructor
 @Data
-public class User extends Person {
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Setter(AccessLevel.NONE)
     protected Long id;
+    @NotBlank
+    @Size(max = 40)
+    protected String firstName;
 
+    @NotBlank
+    @Size(max = 40)
+    protected String lastName;
+
+    @JsonFormat(pattern="yyyy-MM-dd")
+    protected LocalDate birth;
+
+    protected Integer age;
+
+    @Enumerated(EnumType.STRING)
+    protected Gender gender;
+
+    @Size(min = 0, max = 200)
+    protected String bio;
+
+    protected String city;
+
+    protected String country;
     @NotBlank
     @Size(max = 20)
     private String username;

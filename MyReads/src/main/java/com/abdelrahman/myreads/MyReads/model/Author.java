@@ -1,5 +1,6 @@
 package com.abdelrahman.myreads.MyReads.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -8,6 +9,8 @@ import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -15,13 +18,34 @@ import java.util.*;
 @Table(name = "authors")
 @Data
 @NoArgsConstructor
-public class Author extends Person{
+public class Author {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Setter(AccessLevel.NONE)
     protected Long id;
+    @NotBlank
+    @Size(max = 40)
+    protected String firstName;
 
+    @NotBlank
+    @Size(max = 40)
+    protected String lastName;
+
+    @JsonFormat(pattern="yyyy-MM-dd")
+    protected LocalDate birth;
+
+    protected Integer age;
+
+    @Enumerated(EnumType.STRING)
+    protected Gender gender;
+
+    @Size(min = 0, max = 200)
+    protected String bio;
+
+    protected String city;
+
+    protected String country;
     private LocalDate died;
 
 
