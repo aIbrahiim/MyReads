@@ -4,18 +4,15 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Entity
 @Table(name = "reviews")
-@Data
 @NoArgsConstructor
+@Data
 @JsonIgnoreProperties(value = {"createdAt"},
         allowGetters = true)
 public class Review {
@@ -50,5 +47,10 @@ public class Review {
         this.user = user;
         this.book = book;
         this.createdAt = createdAt;
+    }
+
+    @JsonIgnore
+    public User getUser() {
+        return user;
     }
 }

@@ -12,7 +12,7 @@ import java.util.List;
 public class Home {
 
   @GetMapping
-  //@PreAuthorize("hasRole('User')")
+  @PreAuthorize("hasRole('User')")
   public String home(){
      return "welcome!";
   }

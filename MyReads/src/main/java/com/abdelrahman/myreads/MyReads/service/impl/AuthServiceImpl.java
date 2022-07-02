@@ -96,47 +96,30 @@ public class AuthServiceImpl implements AuthService {
         }
 
         String firstName = signUpRequest.getFirstName().toLowerCase();
-
         String lastName = signUpRequest.getLastName().toLowerCase();
-
         String username = signUpRequest.getUsername().toLowerCase();
-
         String email = signUpRequest.getEmail().toLowerCase();
-
         String password = passwordEncoder.encode(signUpRequest.getPassword());
-
         String website = signUpRequest.getWebsite();
-
         String bio = signUpRequest.getBio();
-
         LocalDateTime joinedAt = LocalDateTime.now();
-
         LocalDate birthDay = signUpRequest.getBirth();
-
         String gender = signUpRequest.getGender().toLowerCase();
-
         Gender genderValue = UtilsMethods.getEnumGender(gender);
-
         Period period = Period.between(birthDay, LocalDate.now());
 
         User user = new User(firstName, lastName, username, email, password, bio, website, joinedAt, genderValue, period.getYears(), null, null);
         user.setEnabled(true);
-    /*    Set<Role> roles = new HashSet<>();
+        Set<Role> roles = new HashSet<>();
         Role role = roleRepository.findByName(RoleName.ROLE_USER)
                .orElseThrow(() -> new AppException(new ApiError(HttpStatus.BAD_REQUEST, "User Role is not set")));
         roles.add(role);
         user.setRoles(roles);
-
-
-     */
-
-
         User result = userRepository.save(user);
 
         //shelfService.createPredefinedShelves(result);
 
         UserProfile userProfile = mapper.map(user, UserProfile.class);
-
         return userProfile;
     }
 

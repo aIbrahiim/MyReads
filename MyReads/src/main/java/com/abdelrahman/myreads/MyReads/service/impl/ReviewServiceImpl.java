@@ -2,7 +2,6 @@ package com.abdelrahman.myreads.MyReads.service.impl;
 
 import com.abdelrahman.myreads.MyReads.controller.UserController;
 import com.abdelrahman.myreads.MyReads.dto.ReviewDTO;
-import com.abdelrahman.myreads.MyReads.dto.SubReviewDTO;
 import com.abdelrahman.myreads.MyReads.exception.BadRequestException;
 import com.abdelrahman.myreads.MyReads.exception.ResourceNotFoundException;
 import com.abdelrahman.myreads.MyReads.model.Book;
@@ -35,6 +34,8 @@ import java.util.*;
 
 import static com.abdelrahman.myreads.MyReads.util.AppConstants.*;
 import static com.abdelrahman.myreads.MyReads.util.AppConstants.ID;
+import static com.abdelrahman.myreads.MyReads.util.AppConstants.REVIEWS_DEFAULT_PAGE_SIZE;
+import static com.abdelrahman.myreads.MyReads.util.UtilsMethods.toReviewDTO;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Service
@@ -65,7 +66,7 @@ public class ReviewServiceImpl implements ReviewService {
         review.setBook(book);
         Long parentId = reviewRequest.getParentId();
 
-        if(!reviewRepository.existsById(parentId))
+        if(parentId!=null && !reviewRepository.existsById(parentId))
             parentId = null;
         review.setParentId(reviewRequest.getParentId());
         review.setBody(reviewRequest.getBody());
@@ -131,37 +132,43 @@ public class ReviewServiceImpl implements ReviewService {
     */
 
     @Override
-    public PagedResponse getReviewsOfBook(Long bookId, int page, int size) {
+    public PagedResponse getReviewsOfBook(Long bookId, int page) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, CREATED_AT);
+        Pageable pageable = PageRequest.of(page, REVIEWS_DEFAULT_PAGE_SIZE, Sort.Direction.DESC, CREATED_AT);
         Page<Review> reviews = reviewRepository.findByBookId(bookId, pageable);
         List<Review> content = reviews.getNumberOfElements() == 0 ? Collections.emptyList() : reviews.getContent();
-        Map<ReviewDTO, List<SubReviewDTO>> ThreadReview = new HashMap<>();
 
+        Map<ReviewDTO, List<ReviewDTO>> ThreadReview = new HashMap<>();
 
         for(int i=0; i<content.size(); ++i){
-            ReviewDTO reviewDTO = mapper.map(content.get(i), ReviewDTO.class);
-            if(reviewDTO.getParentId() != null) continue;
-            ThreadReview.put(reviewDTO, new ArrayList<>());
+          Review review = content.get(i);
+            if(review.getParentId() == null){
+                ReviewDTO reviewDTO = toReviewDTO(review);
+                ThreadReview.put(reviewDTO, new ArrayList<>());
+            }
         }
 
         for(int i=0; i<content.size(); ++i){
             Review review = content.get(i);
-            Long parentId = review.getParentId();
-            if(parentId == null) continue;
-            Optional<Review> parentReview = reviewRepository.findById(parentId);
-            if(parentReview.isEmpty()) continue;
-            ReviewDTO reviewDTO = mapper.map(parentReview.get(), ReviewDTO.class);
-            if(ThreadReview.containsKey(reviewDTO)){
-                SubReviewDTO subReviewDTO = mapper.map(review, SubReviewDTO.class);
-                List<SubReviewDTO> list = ThreadReview.get(reviewDTO);
-                list.add(subReviewDTO);
-                ThreadReview.put(reviewDTO, list);
+            if(review.getParentId() == null){
+                continue;
             }
+            Optional<Review> reviewParent = reviewRepository.findById(review.getParentId());
+            ReviewDTO reviewParentDTO = toReviewDTO(reviewParent.get());
+            List<ReviewDTO> temp = ThreadReview.get(reviewParentDTO);
+            System.out.println(reviewParentDTO.getId());
+            ReviewDTO subReviewDTO = toReviewDTO(review);
+            temp.add(subReviewDTO);
+            ThreadReview.put(reviewParentDTO, temp);
         }
         return new PagedResponse(ThreadReview, reviews.getNumber(), reviews.getSize(),
         reviews.getTotalElements(), reviews.getTotalPages(), reviews.isLast());
-      /*  for(int i=0; i<content.size(); ++i){
+
+
+
+        //method two
+      /*
+       for(int i=0; i<content.size(); ++i){
             ReviewDTO reviewDTO = mapper.map(content.get(i), ReviewDTO.class);
             Link selfLink = linkTo(methodOn(UserController.class)
                     .getUserProfile(content.get(i).getUser().getId())).withSelfRel();
