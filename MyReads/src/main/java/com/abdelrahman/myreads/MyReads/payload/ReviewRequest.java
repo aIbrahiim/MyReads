@@ -1,5 +1,6 @@
 package com.abdelrahman.myreads.MyReads.payload;
 
+import com.abdelrahman.myreads.MyReads.model.Review;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

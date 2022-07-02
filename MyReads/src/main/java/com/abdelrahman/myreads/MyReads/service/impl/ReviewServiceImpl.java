@@ -2,13 +2,14 @@ package com.abdelrahman.myreads.MyReads.service.impl;
 
 import com.abdelrahman.myreads.MyReads.controller.UserController;
 import com.abdelrahman.myreads.MyReads.dto.ReviewDTO;
-import com.abdelrahman.myreads.MyReads.dto.ThreadDTO;
-import com.abdelrahman.myreads.MyReads.dto.UserReviewDto;
+import com.abdelrahman.myreads.MyReads.dto.SubReviewDTO;
+import com.abdelrahman.myreads.MyReads.exception.BadRequestException;
 import com.abdelrahman.myreads.MyReads.exception.ResourceNotFoundException;
 import com.abdelrahman.myreads.MyReads.model.Book;
 import com.abdelrahman.myreads.MyReads.model.Review;
-import com.abdelrahman.myreads.MyReads.model.Star;
+import com.abdelrahman.myreads.MyReads.model.RoleName;
 import com.abdelrahman.myreads.MyReads.model.User;
+import com.abdelrahman.myreads.MyReads.payload.ApiResponse;
 import com.abdelrahman.myreads.MyReads.payload.PagedResponse;
 import com.abdelrahman.myreads.MyReads.payload.ReviewRequest;
 import com.abdelrahman.myreads.MyReads.repository.BookRepository;
@@ -16,7 +17,6 @@ import com.abdelrahman.myreads.MyReads.repository.ReviewRepository;
 import com.abdelrahman.myreads.MyReads.repository.UserRepository;
 import com.abdelrahman.myreads.MyReads.security.UserPrincipal;
 import com.abdelrahman.myreads.MyReads.service.ReviewService;
-import com.abdelrahman.myreads.MyReads.util.UtilsMethods;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -25,15 +25,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.hateoas.Link;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.function.BiPredicate;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
+import java.util.*;
 
 import static com.abdelrahman.myreads.MyReads.util.AppConstants.*;
 import static com.abdelrahman.myreads.MyReads.util.AppConstants.ID;
@@ -65,9 +63,13 @@ public class ReviewServiceImpl implements ReviewService {
         Review review =  new Review();
         review.setUser(user);
         review.setBook(book);
+        Long parentId = reviewRequest.getParentId();
+
+        if(!reviewRepository.existsById(parentId))
+            parentId = null;
         review.setParentId(reviewRequest.getParentId());
         review.setBody(reviewRequest.getBody());
-        review.setRaiting(reviewRequest.getRating());
+        review.setRating(reviewRequest.getRating());
         review.setCreatedAt(LocalDateTime.now());
         reviewRepository.save(review);
 
@@ -78,17 +80,86 @@ public class ReviewServiceImpl implements ReviewService {
         return reviewDTO;
     }
 
-    BiPredicate<ReviewDTO, ReviewDTO> checkParent = (p1, p2) ->{
+    @Override
+    public ReviewDTO updateReview(Long reviewId, Long bookId, ReviewRequest reviewRequest, UserPrincipal currentUser) {
+        User user = userRepository.findById(currentUser.getId())
+                .orElseThrow(() -> new ResourceNotFoundException(USER, ID, 1L));
+
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new ResourceNotFoundException(BOOK, ID, bookId));
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new ResourceNotFoundException(REVIEW, ID, 1L));
+
+        if(!review.getBook().equals(bookId) || !review.getParentId().equals(reviewRequest.getParentId()))
+            throw new BadRequestException(new ApiResponse(Boolean.FALSE, "Can't' update this review, values doesn't match", HttpStatus.BAD_REQUEST));
+        if (review.getUser().getId().equals(currentUser.getId())
+                || currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.ROLE_ADMIN.toString()))) {
+            review.setBody(reviewRequest.getBody());
+            ReviewDTO reviewDTO = mapper.map(reviewRepository.save(review), ReviewDTO.class);
+        }
+
+        throw new BadRequestException(new ApiResponse(Boolean.FALSE, "You don't have permission to update this review", HttpStatus.UNAUTHORIZED));    }
+
+    @Override
+    public ApiResponse deleteReview(Long reviewId, Long bookId, UserPrincipal currentUser) {
+        User user = userRepository.findById(currentUser.getId())
+                .orElseThrow(() -> new ResourceNotFoundException(USER, ID, 1L));
+
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new ResourceNotFoundException(BOOK, ID, bookId));
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new ResourceNotFoundException(REVIEW, ID, reviewId));
+        if(!review.getBook().getId().equals(bookId)){
+            throw new BadRequestException(new ApiResponse(Boolean.FALSE, "Can't' update this review, values doesn't match", HttpStatus.BAD_REQUEST));
+        }
+        if (review.getUser().getId().equals(currentUser.getId())
+                || currentUser.getAuthorities().contains(new SimpleGrantedAuthority(RoleName.ROLE_ADMIN.toString()))) {
+            reviewRepository.deleteById(reviewId);
+            reviewRepository.deleteReviews(reviewId);
+            return new ApiResponse(Boolean.TRUE, "You successfully deleted the review", HttpStatus.OK);
+        }
+        throw new BadRequestException(new ApiResponse(Boolean.FALSE, "You don't have permission to delete this review", HttpStatus.UNAUTHORIZED));    }
+
+
+
+
+
+   /* BiPredicate<ReviewDTO, ReviewDTO> checkParent = (p1, p2) ->{
         return p1.getParentId() == p2.getId();
     };
 
+    */
+
     @Override
-    public PagedResponse<Review> getReviewsOfBook(Long bookId, int page, int size) {
+    public PagedResponse getReviewsOfBook(Long bookId, int page, int size) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, CREATED_AT);
         Page<Review> reviews = reviewRepository.findByBookId(bookId, pageable);
-        //List<Review> content = reviews.getNumberOfElements() == 0 ? Collections.emptyList() : reviews.getContent();
-        return new PagedResponse<>(reviews.getContent(), reviews.getNumber(), reviews.getSize(),
+        List<Review> content = reviews.getNumberOfElements() == 0 ? Collections.emptyList() : reviews.getContent();
+        Map<ReviewDTO, List<SubReviewDTO>> ThreadReview = new HashMap<>();
+
+
+        for(int i=0; i<content.size(); ++i){
+            ReviewDTO reviewDTO = mapper.map(content.get(i), ReviewDTO.class);
+            if(reviewDTO.getParentId() != null) continue;
+            ThreadReview.put(reviewDTO, new ArrayList<>());
+        }
+
+        for(int i=0; i<content.size(); ++i){
+            Review review = content.get(i);
+            Long parentId = review.getParentId();
+            if(parentId == null) continue;
+            Optional<Review> parentReview = reviewRepository.findById(parentId);
+            if(parentReview.isEmpty()) continue;
+            ReviewDTO reviewDTO = mapper.map(parentReview.get(), ReviewDTO.class);
+            if(ThreadReview.containsKey(reviewDTO)){
+                SubReviewDTO subReviewDTO = mapper.map(review, SubReviewDTO.class);
+                List<SubReviewDTO> list = ThreadReview.get(reviewDTO);
+                list.add(subReviewDTO);
+                ThreadReview.put(reviewDTO, list);
+            }
+        }
+        return new PagedResponse(ThreadReview, reviews.getNumber(), reviews.getSize(),
         reviews.getTotalElements(), reviews.getTotalPages(), reviews.isLast());
       /*  for(int i=0; i<content.size(); ++i){
             ReviewDTO reviewDTO = mapper.map(content.get(i), ReviewDTO.class);

@@ -3,6 +3,7 @@ package com.abdelrahman.myreads.MyReads.controller;
 import com.abdelrahman.myreads.MyReads.dto.ReviewDTO;
 import com.abdelrahman.myreads.MyReads.dto.ThreadDTO;
 import com.abdelrahman.myreads.MyReads.model.Review;
+import com.abdelrahman.myreads.MyReads.payload.ApiResponse;
 import com.abdelrahman.myreads.MyReads.payload.PagedResponse;
 import com.abdelrahman.myreads.MyReads.payload.ReviewRequest;
 import com.abdelrahman.myreads.MyReads.security.CurrentUser;
@@ -31,12 +32,31 @@ public class ReviewController {
         return new ResponseEntity<>(reviewDTO, HttpStatus.CREATED);
     }
 
+    @PutMapping("/{id}")
+    //@PreAuthorize("hasRole('USER')")
+    public ResponseEntity<ReviewDTO> updateReview(@PathVariable(name = "bookId") Long bookId,
+                                                  @PathVariable(name = "id") Long id,
+            @RequestBody ReviewRequest reviewRequest,  @CurrentUser UserPrincipal currentUser){
+        ReviewDTO reviewDTO = reviewService.updateReview(id, bookId, reviewRequest, currentUser);
+        return new ResponseEntity<>(reviewDTO, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}")
+    //@PreAuthorize("hasRole('USER')")
+    public ResponseEntity<ApiResponse> deleteReview(@PathVariable(name = "bookId") Long bookId,
+                                                    @PathVariable(name = "id") Long id,
+                                                   @CurrentUser UserPrincipal currentUser){
+        ApiResponse response = reviewService.deleteReview(id, bookId, currentUser);
+        HttpStatus status = response.getSuccess() ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
+        return new ResponseEntity<>(response, status);
+    }
+
     @GetMapping
    // @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<PagedResponse<Review>> getReviewsOfBook(@PathVariable(name = "bookId") Long bookId,
+    public ResponseEntity<PagedResponse> getReviewsOfBook(@PathVariable(name = "bookId") Long bookId,
                                                                      @RequestParam(name = "page", required = false, defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) Integer page,
                                                                      @RequestParam(name = "size", required = false, defaultValue = AppConstants.DEFAULT_PAGE_SIZE) Integer size){
-        PagedResponse<Review> reviews = reviewService.getReviewsOfBook(bookId, page, size);
+        PagedResponse reviews = reviewService.getReviewsOfBook(bookId, page, size);
         return new ResponseEntity<>(reviews, HttpStatus.OK);
     }
 }

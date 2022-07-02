@@ -20,5 +20,5 @@ public class BookDTO {
     private Integer seriesPosition;
     private Double rating;
     private String coverUUID;
-    private PagedResponse<ThreadDTO> reviews;
+    private PagedResponse reviews;
 }

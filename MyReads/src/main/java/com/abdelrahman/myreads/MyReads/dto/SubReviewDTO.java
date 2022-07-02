@@ -1,22 +1,15 @@
 package com.abdelrahman.myreads.MyReads.dto;
 
 import com.abdelrahman.myreads.MyReads.model.Book;
-import com.abdelrahman.myreads.MyReads.model.Star;
-import com.abdelrahman.myreads.MyReads.payload.UserProfile;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.hateoas.Link;
 
 import java.time.LocalDateTime;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class ReviewDTO {
-
+public class SubReviewDTO {
     Long id;
     String body;
     ReviewDTO parentId;

@@ -19,6 +19,8 @@ public class AppConstants {
 
     public static final String BOOK = "Book";
 
+    public static final String REVIEW = "Review";
+
     public static final String TOKEN = "Token";
 
     public static final String TOKEN_VALUE = "Token value";

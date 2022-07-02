@@ -29,7 +29,7 @@ public class Review {
     @Nullable
     private Long parentId;
 
-    private Double raiting;
+    private Double rating;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -46,7 +46,7 @@ public class Review {
     public Review(String body, @Nullable Long parentId, Double rating, User user, Book book, LocalDateTime createdAt) {
         this.body = body;
         this.parentId = parentId;
-        this.raiting = rating;
+        this.rating = rating;
         this.user = user;
         this.book = book;
         this.createdAt = createdAt;
